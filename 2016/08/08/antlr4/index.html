@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+  <title>antlr4 | 写点东西试试</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="How to create a Python lexer or parserantlr4 -Dlanguage=Python2 MyGrammar.g4
+or
+antlr4 -Dlanguage=Python3 MyGrammar.g4
+Р§зг[https://github.com/jszheng/py3antlr4book.git ]
+mytst.py1234567891011121314#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="antlr4">
+<meta property="og:url" content="http://hongdaorongthink.github.io/2016/08/08/antlr4/index.html">
+<meta property="og:site_name" content="写点东西试试">
+<meta property="og:description" content="How to create a Python lexer or parserantlr4 -Dlanguage=Python2 MyGrammar.g4
+or
+antlr4 -Dlanguage=Python3 MyGrammar.g4
+Р§зг[https://github.com/jszheng/py3antlr4book.git ]
+mytst.py1234567891011121314#">
+<meta property="og:updated_time" content="2016-08-08T09:21:25.318Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="antlr4">
+<meta name="twitter:description" content="How to create a Python lexer or parserantlr4 -Dlanguage=Python2 MyGrammar.g4
+or
+antlr4 -Dlanguage=Python3 MyGrammar.g4
+Р§зг[https://github.com/jszheng/py3antlr4book.git ]
+mytst.py1234567891011121314#">
+  
+    <link rel="alternate" href="/atom.xml" title="写点东西试试" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+</head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">写点东西试试</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">胆大点、心细点</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="搜索"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hongdaorongthink.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-antlr4" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/08/antlr4/" class="article-date">
+  <time datetime="2016-08-08T09:20:35.000Z" itemprop="datePublished">2016-08-08</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      antlr4
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="How-to-create-a-Python-lexer-or-parser"><a href="#How-to-create-a-Python-lexer-or-parser" class="headerlink" title="How to create a Python lexer or parser"></a>How to create a Python lexer or parser</h1><pre><code>antlr4 -Dlanguage=Python2 MyGrammar.g4
+or
+antlr4 -Dlanguage=Python3 MyGrammar.g4
+</code></pre><h1 id="Р§зг"><a href="#Р§зг" class="headerlink" title="Р§зг"></a>Р§зг</h1><p>[<a href="https://github.com/jszheng/py3antlr4book.git" target="_blank" rel="external">https://github.com/jszheng/py3antlr4book.git</a> ]</p>
+<h1 id="mytst-py"><a href="#mytst-py" class="headerlink" title="mytst.py"></a>mytst.py</h1><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="comment"># mytest.py</span></div><div class="line"><span class="keyword">from</span> antlr4 <span class="keyword">import</span> *</div><div class="line"><span class="keyword">from</span> MyGrammarLexer <span class="keyword">import</span> MyGrammarLexer</div><div class="line"><span class="keyword">from</span> MyGrammarParser <span class="keyword">import</span> MyGrammarParser</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">(argv)</span>:</span></div><div class="line">    input = FileStream(argv[<span class="number">1</span>])</div><div class="line">    lexer = MyGrammarLexer(input)</div><div class="line">    stream = CommonTokenStream(lexer)</div><div class="line">    parser = MyGrammarParser(stream)</div><div class="line">    tree = parser.StartRule()</div><div class="line"> </div><div class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</div><div class="line">    main(sys.argv)</div></pre></td></tr></table></figure>
+<p>This program will work. But it won’t be useful unless you do one of the following:</p>
+<ul>
+<li>you visit the parse tree using a custom listener</li>
+<li>you visit the parse tree using a custom visitor</li>
+<li>your grammar comprises production code (like AntLR3)<br>(please note that production code is target specific, so you can’t have multi target grammars that include production code, except for very limited use cases, see below)</li>
+</ul>
+<h1 id="How-do-I-create-and-run-a-custom-listener"><a href="#How-do-I-create-and-run-a-custom-listener" class="headerlink" title="How do I create and run a custom listener?"></a>How do I create and run a custom listener?</h1><p>Let’s suppose your MyGrammar grammar comprises 2 rules: “key” and “value”.<br>The antlr4 tool will have generated the following listener: </p>
+<p>class MyGrammarListener(ParseTreeListener):<br>    def enterKey(self, ctx):<br>        pass<br>    def exitKey(self, ctx):<br>        pass<br>    def enterValue(self, ctx):<br>        pass<br>    def exitValue(self, ctx):<br>        pass</p>
+<p> In order to provide custom behavior, you might want to create the following class:</p>
+<p>class KeyPrinter(MyGrammarListener):<br>    def exitKey(self, ctx):<br>        print(“Oh, a key!”) </p>
+<p>In order to execute this listener, you would simply add the following lines to the above code:</p>
+<pre><code>...
+tree = parser.StartRule() - only repeated here for reference
+</code></pre><p>   printer = KeyPrinter()<br>   walker = ParseTreeWalker()<br>   walker.walk(printer, tree)</p>
+<p>Further information can be found from the AntLR4 definitive guide.</p>
+<p>============================================================================================================================</p>
+<h2 id="Getting-Started-with-ANTLR-v4"><a href="#Getting-Started-with-ANTLR-v4" class="headerlink" title="Getting Started with ANTLR v4"></a>Getting Started with ANTLR v4</h2><h3 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h3><p>Hi and welcome to the version 4 release of ANTLR! It’s named after the fearless hero of the Crazy Nasty-Ass Honey Badger since ANTLR v4 takes whatever you give it–it just doesn’t give a crap! See Why do we need ANTLR v4? and the preface of the ANTLR v4 book.</p>
+<h3 id="Installation"><a href="#Installation" class="headerlink" title="Installation"></a>Installation</h3><p>antlr 包含两个东西 : 生成 parser/lexer 的 java 类(或者其他目标语言) 的工具 和 parser/lexer 运行的环境。即使使用 antlr intellij 插件 或者 antlrworkds 运行antlr工具 生成的代码仍然需要运行库.<br>首先 你要下载 安装 开发工具插件。即使你只需要编辑语法文件，使用工具效果很好.<br>然后按照以下教程暗转环境运行 parser/lexer.<br>使用 antlr-4.5-complete.jar 作为例子，包含了生成工具和运行库以及其他库<br>附:antlr v4 使用 v3写的</p>
+<p>如果你要教程 antlr 到你的项目中, 使用 mvn, ant, 或者你要集成 antlr 到开发工具中 比如 eclipse 或 intellij 请看 [<a href="https://theantlrguy.atlassian.net/wiki/display/ANTLR4/Integrating+ANTLR+into+Development+Systems" target="_blank" rel="external">https://theantlrguy.atlassian.net/wiki/display/ANTLR4/Integrating+ANTLR+into+Development+Systems</a> Integrating ANTLR into Development Systems]</p>
+<h4 id="unix"><a href="#unix" class="headerlink" title="unix"></a>unix</h4><ol>
+<li>安装 java (1.6 ??)</li>
+<li>下载<figure class="highlight crystal"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cd /usr/local/<span class="class"><span class="keyword">lib</span></span></div><div class="line">$ curl -O <span class="symbol">http:</span>/<span class="regexp">/www.antlr.org/download</span><span class="regexp">/antlr-4.5-complete.jar</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>或者直接在浏览器中下载<br>[<a href="http://www.antlr.org/download.html" target="_blank" rel="external">http://www.antlr.org/download.html</a> ]<br>下载后放到有效目录 比如 /usr/local/lib.</p>
+<ol>
+<li>将 antlr-4.5-complete.jar 添加到 CLASSPATH:<figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ <span class="built_in">export</span> CLASSPATH=<span class="string">".:/usr/local/lib/antlr-4.5-complete.jar:<span class="variable">$CLASSPATH</span>"</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>将这条命令放到放到你的 .bash_profile 或者其他任何启动脚本也是很好的主意</p>
+<ol>
+<li>给 生成命令和测试命令起别名 antlr 和 testrig<figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span><span class="keyword">alias</span> antlr4=<span class="string">'java -Xmx500M -cp "/usr/local/lib/antlr-4.5-complete.jar:$CLASSPATH" org.antlr.v4.Tool'</span></div><div class="line"><span class="variable">$ </span><span class="keyword">alias</span> grun=<span class="string">'java org.antlr.v4.runtime.misc.TestRig'</span></div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="windows"><a href="#windows" class="headerlink" title="windows"></a>windows</h4><ol>
+<li>安装 java (1.6 ??)</li>
+<li><p>下载<br><a href="http://www.antlr.org/download/antlr-4.5-complete.jar" target="_blank" rel="external">http://www.antlr.org/download/antlr-4.5-complete.jar</a><br>下载后放到自己的java库目录 比如 d:\javalib.</p>
+</li>
+<li><p>将 antlr-4.5-complete.jar 添加到 CLASSPATH:</p>
+</li>
+</ol>
+<ul>
+<li>永久的 : 环境变量<h1 id="临时的"><a href="#临时的" class="headerlink" title="临时的"></a>临时的</h1><figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SET CLASSPATH=.;C:<span class="symbol">\J</span>avalib<span class="symbol">\a</span>ntlr-4.5-complete.jar;<span class="variable">%CLASSPATH%</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<ol>
+<li>使用批处理或者doskey来创建快捷命令</li>
+</ol>
+<ul>
+<li><p>批处理文件  antlr4.bat</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">SET CLASSPATH=.<span class="comment">;C:\Javalib\antlr-4.5-complete.jar;%CLASSPATH%</span></div><div class="line"><span class="keyword">java </span><span class="keyword">org.antlr.v4.Tool </span>%*</div></pre></td></tr></table></figure>
+</li>
+<li><p>批处理文件  grun.bat</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">SET <span class="keyword">CLASSPATH</span>=.;C:\Javalib\antlr-<span class="number">4.5</span>-complete.jar;%<span class="keyword">CLASSPATH</span>%</div><div class="line">java org.antlr.v4.<span class="keyword">runtime</span>.misc.TestRig %*</div></pre></td></tr></table></figure>
+</li>
+<li><p>使用 doskey </p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">doskey antlr4=<span class="keyword">java </span><span class="keyword">org.antlr.v4.Tool </span>$*</div><div class="line">doskey grun =<span class="keyword">java </span><span class="keyword">org.antlr.v4.runtime.misc.TestRig </span>$*</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>grun 选项<br>r -tokens   打印每个tokens<br>r -tree    LISP格式打印<br>r -gui      图形化打印</p>
+<h4 id="测试安装是否成功"><a href="#测试安装是否成功" class="headerlink" title="测试安装是否成功"></a>测试安装是否成功</h4><ul>
+<li><p>运行 org.antlr.v4.Tool</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ java -jar /usr/local/<span class="class"><span class="keyword">lib</span>/<span class="title">antlr</span>-4.5-<span class="title">complete</span>.<span class="title">jar</span></span></div><div class="line">ANTLR Parser Generator Version <span class="number">4.5</span></div><div class="line">-o ___ specify output directory where all output is generated</div><div class="line">-<span class="class"><span class="keyword">lib</span> <span class="title">___</span> <span class="title">specify</span> <span class="title">location</span> <span class="title">of</span> .<span class="title">tokens</span> <span class="title">files</span></span></div><div class="line">...</div></pre></td></tr></table></figure>
+</li>
+<li><p>使用 jar 选项</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">$ java -jar /usr/local/<span class="class"><span class="keyword">lib</span>/<span class="title">antlr</span>-4.5-<span class="title">complete</span>.<span class="title">jar</span></span></div><div class="line">ANTLR Parser Generator Version <span class="number">4.5</span></div><div class="line">-o ___ specify output directory where all output is generated</div><div class="line">-<span class="class"><span class="keyword">lib</span> <span class="title">___</span> <span class="title">specify</span> <span class="title">location</span> <span class="title">of</span> .<span class="title">tokens</span> <span class="title">files</span></span></div><div class="line">...</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="第一个例子"><a href="#第一个例子" class="headerlink" title="第一个例子"></a>第一个例子</h3><p>创建文件  Hello.g4<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// Define a grammar called Hello</span></div><div class="line">grammar Hello;</div><div class="line"><span class="string">r  :</span> <span class="string">'hello'</span> ID ;         <span class="comment">// match keyword hello followed by an identifier</span></div><div class="line"><span class="string">ID :</span> [a-z]+ ;             <span class="comment">// match lower-case identifiers</span></div><div class="line"><span class="string">WS :</span> [ \t\r\n]+ -&gt; skip ; <span class="comment">// skip spaces, tabs, newlines</span></div></pre></td></tr></table></figure></p>
+<p>任何一个匹配就是一个token<br>token 提供了匹配位置在第几行，从那个位置开始到那个位置等信息</p>
+<p>运行生成工具<br><figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>cd /tmp</div><div class="line"><span class="variable">$ </span>antlr4 Hello.g4</div><div class="line"><span class="variable">$ </span>javac Hello*.java</div></pre></td></tr></table></figure></p>
+<p>测试生成的代码<br><figure class="highlight cos"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ grun Hello <span class="keyword">r</span> -tree</div><div class="line">hello parrt</div><div class="line"><span class="symbol">^D</span></div><div class="line">(<span class="keyword">r</span> hello parrt)</div></pre></td></tr></table></figure></p>
+<pre><code>^D 是输入结束, windows 下是 ^Z
+-tree 选项 让输出为 LISP 语法
+</code></pre><p>图形化显示解析结果<br><figure class="highlight cos"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ grun Hello <span class="keyword">r</span> -gui</div><div class="line">hello parrt</div><div class="line"><span class="symbol">^D</span></div></pre></td></tr></table></figure></p>
+<p>=================================================================================================================================================================</p>
+<h2 id="使用antlr4ide"><a href="#使用antlr4ide" class="headerlink" title="使用antlr4ide"></a>使用antlr4ide</h2><h3 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h3><ul>
+<li>antlr 4</li>
+<li>语法高亮</li>
+<li>自动代码生成(保存文件时)</li>
+<li>手动代码生成</li>
+<li>代码格式化 (ctrl+shift+F)</li>
+<li>html显示语法图表</li>
+<li>Live Parse Tree evaluation 动态解析 Parse Tree 计算</li>
+<li>文件间高级规则导航 (F3 或者 ctrl+左键点击一个规则)</li>
+<li>快速修复</li>
+</ul>
+<h2 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h2><p>eclipse 4.4 luna<br>XText 2.7.3</p>
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>关联了*.g4 文件</p>
+<h3 id="生成代码"><a href="#生成代码" class="headerlink" title="生成代码"></a>生成代码</h3><p>如果语法正确, 每次保存都会自动生成代码.要关闭自动生成 window &gt; preferences &gt; antlr 4 &gt; tool : [ ] tool is activated </p>
+<h3 id="手动生成代码"><a href="#手动生成代码" class="headerlink" title="手动生成代码"></a>手动生成代码</h3><p>run &gt; as antlr 4<br>修改配置 Run &gt; External Tools &gt; External Tools Configurations…<br> 生成python代码选项 -Dlanguage=Python2</p>
+<h3 id="语法图表"><a href="#语法图表" class="headerlink" title="语法图表"></a>语法图表</h3><p>window &gt; show view &gt; other &gt; syntax diagram</p>
+<h3 id="使用-maven-3-编译"><a href="#使用-maven-3-编译" class="headerlink" title="使用 maven 3 编译"></a>使用 maven 3 编译</h3><p><em>. Fork and clone the repository from github
+</em>. Download and install Maven 3.x<br><em>. Open a shell console and type: cd antlr4ide
+</em>. Build the project with: mvn clean package<br><em>. It takes a while to download and configure Eclipse dependencies, so be patient
+</em>. Wait for a: BUILD SUCCESS message</p>
+<p>===============================================================</p>
+<blockquote>
+<p>antlr4py2 Hello.g4</p>
+</blockquote>
+<p>由g4 文件得到 对应的 Lexer , Listener, Parser, 和 token文件</p>
+<p>ANTLR在运行时库里提供灵活的测试工具称为TestRig</p>
+<p>grun Hello r -tokens    # start the TestRig on grammar Hello at rule r</p>
+<p>语法   规则   分词器</p>
+<p>[“1,6:10 = ‘parrt’,＜2＞,1:6]<br>表明第二个token（索引从0开始），<br>从字符位置6到10（从0开始），<br>有文本parrt，<br>是第二个标记（ID），<br>位置是在第一行（行数从1开始），在第6个字符处（位置是从零开始计算，tabs也算作一个独立的字符）。</p>
+<p>小写表示定义语法</p>
+<p>大写表示定义词法 </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2016/08/08/antlr4/" data-id="cirou3vtk000ca8m3kjttec1r" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/antlr/">antlr</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/语法解析/">语法解析</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/08/10/收藏夹/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          收藏夹
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/08/08/学习框架/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">学习框架</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/antlr/">antlr</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/bug/">bug</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/c/">c++</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/chrome/">chrome</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/crontab/">crontab</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/easyui/">easyui</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/">hexo</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/java/">java</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/json/">json</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/node/">node</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/plan/">plan</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/python/">python</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/quartz/">quartz</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/work/">work</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/书签/">书签</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/定时任务/">定时任务</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/数据分析/">数据分析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/语法解析/">语法解析</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/金仕达/">金仕达</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/antlr/" style="font-size: 10px;">antlr</a> <a href="/tags/bug/" style="font-size: 10px;">bug</a> <a href="/tags/c/" style="font-size: 13.33px;">c++</a> <a href="/tags/chrome/" style="font-size: 10px;">chrome</a> <a href="/tags/crontab/" style="font-size: 10px;">crontab</a> <a href="/tags/easyui/" style="font-size: 10px;">easyui</a> <a href="/tags/hexo/" style="font-size: 10px;">hexo</a> <a href="/tags/java/" style="font-size: 20px;">java</a> <a href="/tags/json/" style="font-size: 10px;">json</a> <a href="/tags/node/" style="font-size: 10px;">node</a> <a href="/tags/plan/" style="font-size: 10px;">plan</a> <a href="/tags/python/" style="font-size: 16.67px;">python</a> <a href="/tags/quartz/" style="font-size: 16.67px;">quartz</a> <a href="/tags/work/" style="font-size: 13.33px;">work</a> <a href="/tags/书签/" style="font-size: 10px;">书签</a> <a href="/tags/定时任务/" style="font-size: 13.33px;">定时任务</a> <a href="/tags/数据分析/" style="font-size: 10px;">数据分析</a> <a href="/tags/语法解析/" style="font-size: 10px;">语法解析</a> <a href="/tags/金仕达/" style="font-size: 10px;">金仕达</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">归档</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/05/">五月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/09/">九月 2015</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">最新文章</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2016/08/10/收藏夹/">收藏夹</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/08/antlr4/">antlr4</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/08/学习框架/">学习框架</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/03/科学计算/">科学计算</a>
+          </li>
+        
+          <li>
+            <a href="/2016/08/01/写一个简单服务框架/">写一个简单服务框架</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 HongDR<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+</body>
+</html>
