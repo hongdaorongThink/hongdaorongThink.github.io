@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>hongdaorongThink.github.io</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="spring_cloud_例子Spring Cloud provides tools for developers to quickly build some of the common patterns in distributed systems (e.g. configuration management, service discovery, circuit breakers, intel">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hongdaorongThink.github.io">
+<meta property="og:url" content="http://hongdaorongthink.github.io/2019/08/12/spring_cloud_例子/index.html">
+<meta property="og:site_name" content="hongdaorongThink.github.io">
+<meta property="og:description" content="spring_cloud_例子Spring Cloud provides tools for developers to quickly build some of the common patterns in distributed systems (e.g. configuration management, service discovery, circuit breakers, intel">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-08-12T07:42:39.095Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hongdaorongThink.github.io">
+<meta name="twitter:description" content="spring_cloud_例子Spring Cloud provides tools for developers to quickly build some of the common patterns in distributed systems (e.g. configuration management, service discovery, circuit breakers, intel">
+  
+    <link rel="alternate" href="/atom.xml" title="hongdaorongThink.github.io" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">hongdaorongThink.github.io</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hongdaorongthink.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-spring_cloud_例子" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/12/spring_cloud_例子/" class="article-date">
+  <time datetime="2019-08-12T06:37:01.204Z" itemprop="datePublished">2019-08-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="spring-cloud-例子"><a href="#spring-cloud-例子" class="headerlink" title="spring_cloud_例子"></a>spring_cloud_例子</h1><p>Spring Cloud provides tools for developers to quickly build some of the common patterns in distributed systems (e.g. configuration management, service discovery, circuit breakers, intelligent routing, micro-proxy, control bus, one-time tokens, global locks, leadership election, distributed sessions, cluster state).</p>
+<p>Spring Cloud 为开发者提供了工具<br>用于快速构建通用模式的分布式系统<br>例如: 配置管理, 服务发现, 断路器, 智能路由, 微代理, 控制总线, 一次性token, 全局锁, 主节点选择, 分布式session, 集群状态</p>
+<p>Coordination of distributed systems leads to boiler plate patterns, and using Spring Cloud developers can quickly stand up services and applications that implement those patterns. </p>
+<p>使用样板代码就能快速实现分布式应用 </p>
+<p>They will work well in any distributed environment, including the developer’s own laptop, bare metal data centres, and managed platforms such as Cloud Foundry.</p>
+<p>在各种环境下都能良好运行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(Application.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>只需通过注解就能启动需要的功能</p>
+<h2 id="主要项目"><a href="#主要项目" class="headerlink" title="主要项目"></a>主要项目</h2><p>Main Projects</p>
+<h3 id="Spring-Cloud-Config"><a href="#Spring-Cloud-Config" class="headerlink" title="Spring Cloud Config"></a>Spring Cloud Config</h3><p>Centralized external configuration management backed by a git repository. The configuration resources map directly to Spring Environment but could be used by non-Spring applications if desired.</p>
+<p>分布式配置中心, </p>
+<h2 id="Spring-Cloud-Netflix"><a href="#Spring-Cloud-Netflix" class="headerlink" title="Spring Cloud Netflix"></a>Spring Cloud Netflix</h2><p>Integration with various Netflix OSS components (Eureka, Hystrix, Zuul, Archaius, etc.).</p>
+<p>服务注册和发现, 客户端负载均衡,  断路器, 智能路由</p>
+<h2 id="Spring-Cloud-Bus"><a href="#Spring-Cloud-Bus" class="headerlink" title="Spring Cloud Bus"></a>Spring Cloud Bus</h2><p>An event bus for linking services and service instances together with distributed messaging. Useful for propagating state changes across a cluster (e.g. config change events).</p>
+<p>消息总线, </p>
+<h2 id="Spring-Cloud-Cloudfoundry"><a href="#Spring-Cloud-Cloudfoundry" class="headerlink" title="Spring Cloud Cloudfoundry"></a>Spring Cloud Cloudfoundry</h2><p>Integrates your application with Pivotal Cloud Foundry. Provides a service discovery implementation and also makes it easy to implement SSO and OAuth2 protected resources.</p>
+<p>集成 Pivotal Cloud Foundry 云服务</p>
+<h2 id="Spring-Cloud-Open-Service-Broker"><a href="#Spring-Cloud-Open-Service-Broker" class="headerlink" title="Spring Cloud Open Service Broker"></a>Spring Cloud Open Service Broker</h2><p>Provides a starting point for building a service broker that implements the Open Service Broker API.</p>
+<p>用于构建实现Open Service Broker API的Spring Boot应用程序的框架</p>
+<h2 id="Spring-Cloud-Cluster"><a href="#Spring-Cloud-Cluster" class="headerlink" title="Spring Cloud Cluster"></a>Spring Cloud Cluster</h2><p>Leadership election and common stateful patterns with an abstraction and implementation for Zookeeper, Redis, Hazelcast, Consul.</p>
+<p>集群功能, 抽象了 Zookeeper , redis, hazelcast, consul </p>
+<h2 id="Spring-Cloud-Consul"><a href="#Spring-Cloud-Consul" class="headerlink" title="Spring Cloud Consul"></a>Spring Cloud Consul</h2><p>Service discovery and configuration management with Hashicorp Consul.</p>
+<p>服务治理</p>
+<h2 id="Spring-Cloud-Security"><a href="#Spring-Cloud-Security" class="headerlink" title="Spring Cloud Security"></a>Spring Cloud Security</h2><p>Provides support for load-balanced OAuth2 rest client and authentication header relays in a Zuul proxy.</p>
+<p>负载均衡, 服务授权</p>
+<h2 id="Spring-Cloud-Sleuth"><a href="#Spring-Cloud-Sleuth" class="headerlink" title="Spring Cloud Sleuth"></a>Spring Cloud Sleuth</h2><p>Distributed tracing for Spring Cloud applications, compatible with Zipkin, HTrace and log-based (e.g. ELK) tracing.</p>
+<p>服务跟踪</p>
+<h2 id="Spring-Cloud-Data-Flow"><a href="#Spring-Cloud-Data-Flow" class="headerlink" title="Spring Cloud Data Flow"></a>Spring Cloud Data Flow</h2><p>A cloud-native orchestration service for composable microservice applications on modern runtimes. Easy-to-use DSL, drag-and-drop GUI, and REST-APIs together simplifies the overall orchestration of microservice based data pipelines.</p>
+<p>大数据处理</p>
+<h2 id="Spring-Cloud-Stream"><a href="#Spring-Cloud-Stream" class="headerlink" title="Spring Cloud Stream"></a>Spring Cloud Stream</h2><p>A lightweight event-driven microservices framework to quickly build applications that can connect to external systems. Simple declarative model to send and receive messages using Apache Kafka or RabbitMQ between Spring Boot apps.</p>
+<p>消息驱动</p>
+<h2 id="Spring-Cloud-Stream-App-Starters"><a href="#Spring-Cloud-Stream-App-Starters" class="headerlink" title="Spring Cloud Stream App Starters"></a>Spring Cloud Stream App Starters</h2><p>Spring Cloud Stream App Starters are Spring Boot based Spring Integration applications that provide integration with external systems.</p>
+<h2 id="Spring-Cloud-Task"><a href="#Spring-Cloud-Task" class="headerlink" title="Spring Cloud Task"></a>Spring Cloud Task</h2><p>A short-lived microservices framework to quickly build applications that perform finite amounts of data processing. Simple declarative for adding both functional and non-functional features to Spring Boot apps.</p>
+<p>定时任务</p>
+<h2 id="Spring-Cloud-Task-App-Starters"><a href="#Spring-Cloud-Task-App-Starters" class="headerlink" title="Spring Cloud Task App Starters"></a>Spring Cloud Task App Starters</h2><p>Spring Cloud Task App Starters are Spring Boot applications that may be any process including Spring Batch jobs that do not run forever, and they end/stop after a finite period of data processing.</p>
+<h2 id="Spring-Cloud-Zookeeper"><a href="#Spring-Cloud-Zookeeper" class="headerlink" title="Spring Cloud Zookeeper"></a>Spring Cloud Zookeeper</h2><p>Service discovery and configuration management with Apache Zookeeper.</p>
+<p>自动配置 zookeeper </p>
+<h2 id="Spring-Cloud-AWS"><a href="#Spring-Cloud-AWS" class="headerlink" title="Spring Cloud AWS"></a>Spring Cloud AWS</h2><p>Easy integration with hosted Amazon Web Services. It offers a convenient way to interact with AWS provided services using well-known Spring idioms and APIs, such as the messaging or caching API. Developers can build their application around the hosted services without having to care about infrastructure or maintenance.</p>
+<p>自动配置 aws 服务</p>
+<h2 id="Spring-Cloud-Connectors"><a href="#Spring-Cloud-Connectors" class="headerlink" title="Spring Cloud Connectors"></a>Spring Cloud Connectors</h2><p>Makes it easy for PaaS applications in a variety of platforms to connect to backend services like databases and message brokers (the project formerly known as “Spring Cloud”).</p>
+<p>云服务连接自动配置</p>
+<h2 id="Spring-Cloud-Starters"><a href="#Spring-Cloud-Starters" class="headerlink" title="Spring Cloud Starters"></a>Spring Cloud Starters</h2><p>Spring Boot-style starter projects to ease dependency management for consumers of Spring Cloud. (Discontinued as a project and merged with the other projects after Angel.SR2.)</p>
+<h2 id="Spring-Cloud-CLI"><a href="#Spring-Cloud-CLI" class="headerlink" title="Spring Cloud CLI"></a>Spring Cloud CLI</h2><p>Spring Boot CLI plugin for creating Spring Cloud component applications quickly in Groovy</p>
+<p>方便创建应用</p>
+<h2 id="Spring-Cloud-Contract"><a href="#Spring-Cloud-Contract" class="headerlink" title="Spring Cloud Contract"></a>Spring Cloud Contract</h2><p>Spring Cloud Contract is an umbrella project holding solutions that help users in successfully implementing the Consumer Driven Contracts approach.</p>
+<p>消费者驱动契约</p>
+<h2 id="Spring-Cloud-Gateway"><a href="#Spring-Cloud-Gateway" class="headerlink" title="Spring Cloud Gateway"></a>Spring Cloud Gateway</h2><p>Spring Cloud Gateway is an intelligent and programmable router based on Project Reactor.</p>
+<p>网关, 替代 zuul </p>
+<h2 id="Spring-Cloud-OpenFeign"><a href="#Spring-Cloud-OpenFeign" class="headerlink" title="Spring Cloud OpenFeign"></a>Spring Cloud OpenFeign</h2><p>Spring Cloud OpenFeign provides integrations for Spring Boot apps through autoconfiguration and binding to the Spring Environment and other Spring programming model idioms.</p>
+<p>OpenFeign 自动配置</p>
+<h2 id="Spring-Cloud-Pipelines"><a href="#Spring-Cloud-Pipelines" class="headerlink" title="Spring Cloud Pipelines"></a>Spring Cloud Pipelines</h2><p>Spring Cloud Pipelines provides an opinionated deployment pipeline with steps to ensure that your application can be deployed in zero downtime fashion and easilly rolled back of something goes wrong.</p>
+<h2 id="Spring-Cloud-Function"><a href="#Spring-Cloud-Function" class="headerlink" title="Spring Cloud Function"></a>Spring Cloud Function</h2><p>Spring Cloud Function promotes the implementation of business logic via functions. It supports a uniform programming model across serverless providers, as well as the ability to run standalone (locally or in a PaaS).</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/08/12/spring_cloud_例子/" data-id="ck9smo2xr000o88u4s08ifj2t" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/08/12/Spring_Cloud_Config/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/09/activiti-对-mybatis-的使用解析/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">activiti 对 mybatis 的使用解析</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/activiti/">activiti</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/失败案例/">失败案例</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/activiti/" style="font-size: 20px;">activiti</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/失败案例/" style="font-size: 10px;">失败案例</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/08/12/Spring_Cloud_Bus/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/12/Spring_Cloud_Netflix/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/12/Spring_Cloud_Config/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/12/spring_cloud_例子/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/09/activiti-对-mybatis-的使用解析/">activiti 对 mybatis 的使用解析</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Hong Daorong<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>

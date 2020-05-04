@@ -62,10 +62,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-pelican_生成静态网站" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-Spring_Cloud_Bus" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/05/10/pelican_生成静态网站/" class="article-date">
-  <time datetime="2019-05-10T03:09:54.585Z" itemprop="datePublished">2019-05-10</time>
+    <a href="/2019/08/12/Spring_Cloud_Bus/" class="article-date">
+  <time datetime="2019-08-12T07:18:57.773Z" itemprop="datePublished">2019-08-12</time>
 </a>
     
   </div>
@@ -74,86 +74,374 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h1 id="pelican-生成静态网站"><a href="#pelican-生成静态网站" class="headerlink" title="pelican_生成静态网站"></a>pelican_生成静态网站</h1><p>Pelican是一套开源的使用Python编写的博客静态生成,<br>可以添加文章和和创建页面,<br>可以使用MarkDown reStructuredText 和 AsiiDoc 的格式来抒写,<br>同时使用 Disqus评论系统,<br>支持 RSS和Atom输出, 插件, 主题, 代码高亮等功能,<br>采用Jajin2模板引擎, 可以很容易的更改模板</p>
-<h2 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h2><p>可以从github克隆最新的代码安装, 并且建议在virtualenv下使用:</p>
-<ul>
-<li><p>建立 virtualenv</p>
-<p>  virtualenv pelican      # 创建<br>  cd pelican<br>  sh bin/activate            # 激活虚拟环境</p>
-</li>
+        <h1 id="Spring-Cloud-Bus"><a href="#Spring-Cloud-Bus" class="headerlink" title="Spring_Cloud_Bus"></a>Spring_Cloud_Bus</h1><p>Spring Cloud Bus可以将分布式系统的节点与轻量级消息代理链接，然后可以实现广播状态更改（例如配置更改）或广播其他管理指令。Spring Cloud Bus就像一个分布式执行器，用于扩展的Spring Boot应用程序，但也可以用作应用程序之间的通信通道。那么这里就涉及到了消息代理，目前流行的消息代理中间件有不少，Spring Cloud Bus支持RabbitMQ和Kafka，本文我们主要来看看RabbitMQ的基本使用。</p>
+<p>工程创建</p>
+<p>首先我们来创建一个普通的Spring Boot工程，然后添加如下依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-amqp<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>属性配置</p>
+<p>接下来在application.properties中配置RabbitMQ的连接信息，如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">spring.application.name=rabbitmq-hello</span><br><span class="line">spring.rabbitmq.host=localhost</span><br><span class="line">spring.rabbitmq.port=5672</span><br><span class="line">spring.rabbitmq.username=sang</span><br><span class="line">spring.rabbitmq.password=123456</span><br><span class="line">server.port=2009</span><br></pre></td></tr></table></figure>
+<p>这里我们分别配置了RabbitMQ的地址为localhost，端口为5672（注意这里没写错，web管理端端口是15672），用户名和密码则是我们刚刚创建出来的（也可以使用默认的guest）。</p>
+<p>创建消息生产者</p>
+<p>发送消息我们有一个现成的封装好的对象AmqpTemplate，通过AmqpTemplate我们可以直接向某一个消息队列发送消息，消息生产者的定义方式如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Sender</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> AmqpTemplate rabbitTemplate;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">send</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String msg = <span class="string">"hello rabbitmq:"</span>+<span class="keyword">new</span> Date();</span><br><span class="line">        System.out.println(<span class="string">"Sender:"</span>+msg);</span><br><span class="line">        <span class="keyword">this</span>.rabbitTemplate.convertAndSend(<span class="string">"hello"</span>, msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注入AmqpTemplate，然后利用AmqpTemplate向一个名为hello的消息队列中发送消息。</p>
+<p>创建消息消费者</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="meta">@RabbitListener</span>(queues = <span class="string">"hello"</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Receiver</span> </span>&#123;</span><br><span class="line">    <span class="meta">@RabbitHandler</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(String msg)</span> </span>&#123;</span><br><span class="line">        System.out.println(<span class="string">"Receiver:"</span>+msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>@RabbitListener(queues = “hello”)注解表示该消息消费者监听hello这个消息队列，@RabbitHandler注解则表示process方法是用来处理接收到的消息的，我们这里收到消息后直接打印即可。</p>
+<p>配置消息队列Bean</p>
+<p>创建一个名为hello的消息队列。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RabbitConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Queue <span class="title">helloQueue</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Queue(<span class="string">"hello"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试</p>
+<p>创建单元测试类，用来发送消息，如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringJUnit4ClassRunner.class)</span><br><span class="line"><span class="meta">@SpringBootTest</span>(classes = RabbitmqHelloApplication.class)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RabbitmqHelloApplicationTests</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    <span class="keyword">private</span> Sender sender;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Test</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">contextLoads</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        sender.send();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个表示程序已经创建了一个访问RabbitMQ的连接，此时在RabbitMQ的web管理面板中，我们也可以看到连接信息，如下： </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/08/12/Spring_Cloud_Bus/" data-id="ck9smo2wz000688u4t27zqet5" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Spring_Cloud_Netflix" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/12/Spring_Cloud_Netflix/" class="article-date">
+  <time datetime="2019-08-12T06:57:17.019Z" itemprop="datePublished">2019-08-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Spring-Cloud-Netflix"><a href="#Spring-Cloud-Netflix" class="headerlink" title="Spring_Cloud_Netflix"></a>Spring_Cloud_Netflix</h1><h2 id="一、Spring-Cloud-Netflix"><a href="#一、Spring-Cloud-Netflix" class="headerlink" title="一、Spring Cloud Netflix"></a>一、Spring Cloud Netflix</h2><p>该项目是Spring Cloud的核心子项目，是对Netflix公司一系列开源产品的封装。它为Spring Boot应用提供了自配置的整合，只需要通过一些简单的注解，就可以快速地在Spring Cloud的应用中使用起来。</p>
+<p>它主要提供的模块包括：</p>
+<pre><code>服务发现注册（Eureka）
+客户端负载均衡（Ribbon）
+断路器（Hystrix）
+智能路由（Zuul）
+</code></pre><h2 id="二、服务注册和服务发现"><a href="#二、服务注册和服务发现" class="headerlink" title="二、服务注册和服务发现"></a>二、服务注册和服务发现</h2><p>调用关系说明：</p>
+<pre><code>1.服务提供者在启动时，向注册中心注册自己提供的服务。
+2.服务消费者在启动时，向注册中心订阅自己所需的服务。
+3.注册中心返回服务提供者地址给消费者。
+4.服务消费者从提供者地址中调用消费者。
+</code></pre><p>注意！ 下面的服务端指：注册中心，客户端指：提供者和消费者</p>
+<h2 id="三、如何使用Eureka进行服务注册和发现"><a href="#三、如何使用Eureka进行服务注册和发现" class="headerlink" title="三、如何使用Eureka进行服务注册和发现"></a>三、如何使用Eureka进行服务注册和发现</h2><h3 id="创建“服务注册中心”"><a href="#创建“服务注册中心”" class="headerlink" title="创建“服务注册中心”"></a>创建“服务注册中心”</h3><p>创建一个基础的Spring Boot工程，命名为eureka-server，并在pom.xml中引入需要的依赖内容：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.4.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>Dalston.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>服务端添加配置, 在默认设置下，该服务注册中心也会将自己作为客户端来尝试注册它自己，所以我们需要禁用它的客户端注册行为，只需要在application.properties配置文件中增加如下信息：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">spring.application.name=eureka-server</span><br><span class="line">server.port=1001</span><br><span class="line"></span><br><span class="line">eureka.instance.hostname=localhost</span><br><span class="line">eureka.client.register-with-eureka=false</span><br><span class="line">eureka.client.fetch-registry=false</span><br></pre></td></tr></table></figure>
+<p>3、服务端添加注解</p>
+<p>通过@EnableEurekaServer注解启动一个服务注册中心提供给其他应用进行对话。这一步非常的简单，只需要在一个普通的Spring Boot应用中添加这个注解就能开启此功能，比如下面的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> SpringApplicationBuilder(Application.class)</span><br><span class="line">                    .web(<span class="keyword">true</span>).run(args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为了与后续要进行注册的服务区分，这里将服务注册中心的端口通过server.port属性设置为1001。启动工程后，访问：<a href="http://localhost:1001/，可以看到下面的页面，其中还没有发现任何服务。" target="_blank" rel="noopener">http://localhost:1001/，可以看到下面的页面，其中还没有发现任何服务。</a></p>
+<h3 id="创建“服务提供方”"><a href="#创建“服务提供方”" class="headerlink" title="创建“服务提供方”"></a>创建“服务提供方”</h3><p>下面我们创建提供服务的客户端，并向服务注册中心注册自己。本文我们主要介绍服务的注册与发现，所以我们不妨在服务提供方中尝试着提供一个接口来获取当前所有的服务信息。</p>
+<p>首先，创建一个基本的Spring Boot应用。命名为eureka-client，在pom.xml中，加入如下配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">parent</span>&gt;</span> </span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.5.4.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-eureka<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">version</span>&gt;</span>Dalston.SR1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">type</span>&gt;</span>pom<span class="tag">&lt;/<span class="name">type</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">scope</span>&gt;</span>import<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其次，实现/dc请求处理接口，通过DiscoveryClient对象，在日志中打印出服务实例的相关内容。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DcController</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Autowired</span></span><br><span class="line">    DiscoveryClient discoveryClient;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@GetMapping</span>(<span class="string">"/dc"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">dc</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String services = <span class="string">"Services: "</span> + discoveryClient.getServices();</span><br><span class="line">        System.out.println(services);</span><br><span class="line">        <span class="keyword">return</span> services;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后在应用主类中通过加上@EnableDiscoveryClient注解，该注解能激活Eureka中的DiscoveryClient实现，这样才能实现Controller中对服务信息的输出。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">new</span> SpringApplicationBuilder(</span><br><span class="line">            ComputeServiceApplication.class)</span><br><span class="line">            .web(<span class="keyword">true</span>).run(args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们在完成了服务内容的实现之后，再继续对application.properties做一些配置工作，具体如下：</p>
+<p>提供者</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">spring.application.name=eureka-client</span><br><span class="line">server.port=2001</span><br><span class="line">eureka.client.serviceUrl.defaultZone=http://localhost:1001/eureka/</span><br></pre></td></tr></table></figure>
+<p>通过spring.application.name属性，我们可以指定微服务的名称后续在调用的时候只需要使用该名称就可以进行服务的访问。eureka.client.serviceUrl.defaultZone属性对应服务注册中心的配置内容，指定服务注册中心的位置。为了在本机上测试区分服务提供方和服务注册中心，使用server.port属性设置不同的端口。</p>
+<p>启动该工程后，再次访问：<a href="http://localhost:1001/。可以如下图内容，我们定义的服务被成功注册了。" target="_blank" rel="noopener">http://localhost:1001/。可以如下图内容，我们定义的服务被成功注册了。</a></p>
+<p>其中，方括号中的eureka-client就是通过Spring Cloud定义的DiscoveryClient接口在eureka的实现中获取到的所有服务清单。由于Spring Cloud在服务发现这一层做了非常好的抽象，所以，对于上面的程序，我们可以无缝的从eureka的服务治理体系切换到consul的服务治理体系中区。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/08/12/Spring_Cloud_Netflix/" data-id="ck9smo2x5000b88u4q4ept9yk" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-Spring_Cloud_Config" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/12/Spring_Cloud_Config/" class="article-date">
+  <time datetime="2019-08-12T06:48:59.036Z" itemprop="datePublished">2019-08-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Spring-Cloud-Config"><a href="#Spring-Cloud-Config" class="headerlink" title="Spring_Cloud_Config"></a>Spring_Cloud_Config</h1><h2 id="一、简介"><a href="#一、简介" class="headerlink" title="一、简介"></a>一、简介</h2><p>在分布式系统中，由于服务数量巨多，为了方便服务配置文件统一管理，实时更新，所以需要分布式配置中心组件。市面上开源的配置中心有很多，BAT每家都出过，360的QConf、淘宝的diamond、百度的disconf都是解决这类问题。国外也有很多开源的配置中心Apache的Apache Commons Configuration、owner、cfg4j等等。</p>
+<p>在Spring Cloud中，有分布式配置中心组件spring cloud config ，它支持配置服务放在配置服务的内存中（即本地），也支持放在远程Git仓库中。在spring cloud config 组件中，分两个角色，一是config server，二是config client。</p>
+<p>一个配置中心提供的核心功能</p>
+<pre><code>提供服务端和客户端支持
+集中管理各环境的配置文件
+配置文件修改之后，可以快速的生效
+可以进行版本管理
+支持大的并发查询
+支持各种语言
+</code></pre><p>Spring Cloud Config可以完美的支持以上所有的需求。</p>
+<p>Spring Cloud Config项目是一个解决分布式系统的配置管理方案。它包含了Client和Server两个部分，server提供配置文件的存储、以接口的形式将配置文件的内容提供出去，client通过接口获取数据、并依据此数据初始化自己的应用。Spring cloud使用git或svn存放配置文件，默认情况下使用git，我们先以git为例做一套示例。</p>
+<h2 id="二、构建Config-Server"><a href="#二、构建Config-Server" class="headerlink" title="二、构建Config Server"></a>二、构建Config Server</h2><p>创建一个spring-boot项目，取名为config-server,pom.xml中引入依赖:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-config<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!--表示为web工程--&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!--暴露各种指标  貌似是必须的  --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">      </span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-config-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>新建入口类BootApplication：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.cloud.config.server.EnableConfigServer;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableConfigServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BootApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(BootApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>application.properties：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">server.port=7010</span><br><span class="line">spring.cloud.config.server.default-application-name=config-server</span><br><span class="line"></span><br><span class="line"># 配置git仓库地址</span><br><span class="line">spring.cloud.config.server.git.uri=https://github.com/s***w*/myspringcloudconfig</span><br><span class="line"># 配置仓库路径</span><br><span class="line">spring.cloud.config.server.git.search-paths=myconfigpath</span><br><span class="line"># 配置仓库的分支</span><br><span class="line">spring.cloud.config.label=master</span><br><span class="line"># 访问git仓库的用户名</span><br><span class="line">spring.cloud.config.server.git.username=xxxxoooo</span><br><span class="line"># 访问git仓库的用户密码 如果Git仓库为公开仓库，可以不填写用户名和密码，如果是私有仓库需要填写</span><br><span class="line">spring.cloud.config.server.git.password=xxxxoooo</span><br></pre></td></tr></table></figure>
+<p>远程仓库<a href="https://github.com/shaweiwei/myspringcloudconfig/" target="_blank" rel="noopener">https://github.com/shaweiwei/myspringcloudconfig/</a> 中有个文件config-client-dev.properties文件中有一个属性：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">myww=myww version 2</span><br></pre></td></tr></table></figure>
+<p>启动程序：访问<a href="http://localhost:7010/myww/dev" target="_blank" rel="noopener">http://localhost:7010/myww/dev</a></p>
+<p>证明配置服务中心可以从远程程序获取配置信息。</p>
+<p>http请求地址和资源文件映射如下:</p>
+<pre><code>/{application}/{profile}[/{label}]
+/{application}-{profile}.yml
+/{label}/{application}-{profile}.yml
+/{application}-{profile}.properties
+/{label}/{application}-{profile}.properties
+</code></pre><h2 id="三、构建一个config-client"><a href="#三、构建一个config-client" class="headerlink" title="三、构建一个config client"></a>三、构建一个config client</h2><p>重新创建一个springboot项目，取名为config-client,其pom文件引入依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-config<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-actuator<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其配置文件bootstrap.properties：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># 和git里的文件名对应</span><br><span class="line">spring.application.name=config-client</span><br><span class="line"># 远程仓库的分支</span><br><span class="line">spring.cloud.config.label=master</span><br><span class="line"># dev 开发环境配置文件 |  test 测试环境  |  pro 正式环境</span><br><span class="line"># 和git里的文件名对应</span><br><span class="line">spring.cloud.config.profile=dev</span><br><span class="line"># 指明配置服务中心的网址</span><br><span class="line">spring.cloud.config.uri= http://localhost:7010/</span><br><span class="line">server.port=7020</span><br></pre></td></tr></table></figure>
+<p>程序的入口类，写一个API接口“／hi”，返回从配置中心读取的foo变量的值，代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Value;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RestController;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@RestController</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BootApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(BootApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@Value</span>(<span class="string">"$&#123;myww&#125;"</span>) <span class="comment">// git配置文件里的key</span></span><br><span class="line">    String myww;</span><br><span class="line">    </span><br><span class="line">    <span class="meta">@RequestMapping</span>(value = <span class="string">"/hi"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">hi</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> myww;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>打开网址访问：<a href="http://localhost:7020/hi，网页显示：" target="_blank" rel="noopener">http://localhost:7020/hi，网页显示：</a></p>
+<p>myww version 2</p>
+<p>这就说明，config-client从config-server获取了foo的属性，而config-server是从git仓库读取的,如图：</p>
+<h2 id="四、扩展"><a href="#四、扩展" class="headerlink" title="四、扩展"></a>四、扩展</h2><p>我们在进行一些小实验，手动修改service-config-dev.properties中配置信息提交到github,再次请求会看到还是用的旧的配置，这是为什么？因为spirngboot项目只有在启动的时候才会获取配置文件的值，修改github信息后，client端并没有再次去获取，所以导致这个问题。如何去解决这个问题呢？</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/08/12/Spring_Cloud_Config/" data-id="ck9smo2x2000988u4p7nvy2xj" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-spring_cloud_例子" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/12/spring_cloud_例子/" class="article-date">
+  <time datetime="2019-08-12T06:37:01.204Z" itemprop="datePublished">2019-08-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="spring-cloud-例子"><a href="#spring-cloud-例子" class="headerlink" title="spring_cloud_例子"></a>spring_cloud_例子</h1><p>Spring Cloud provides tools for developers to quickly build some of the common patterns in distributed systems (e.g. configuration management, service discovery, circuit breakers, intelligent routing, micro-proxy, control bus, one-time tokens, global locks, leadership election, distributed sessions, cluster state).</p>
+<p>Spring Cloud 为开发者提供了工具<br>用于快速构建通用模式的分布式系统<br>例如: 配置管理, 服务发现, 断路器, 智能路由, 微代理, 控制总线, 一次性token, 全局锁, 主节点选择, 分布式session, 集群状态</p>
+<p>Coordination of distributed systems leads to boiler plate patterns, and using Spring Cloud developers can quickly stand up services and applications that implement those patterns. </p>
+<p>使用样板代码就能快速实现分布式应用 </p>
+<p>They will work well in any distributed environment, including the developer’s own laptop, bare metal data centres, and managed platforms such as Cloud Foundry.</p>
+<p>在各种环境下都能良好运行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Application</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(Application.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>只需通过注解就能启动需要的功能</p>
+<h2 id="主要项目"><a href="#主要项目" class="headerlink" title="主要项目"></a>主要项目</h2><p>Main Projects</p>
+<h3 id="Spring-Cloud-Config"><a href="#Spring-Cloud-Config" class="headerlink" title="Spring Cloud Config"></a>Spring Cloud Config</h3><p>Centralized external configuration management backed by a git repository. The configuration resources map directly to Spring Environment but could be used by non-Spring applications if desired.</p>
+<p>分布式配置中心, </p>
+<h2 id="Spring-Cloud-Netflix"><a href="#Spring-Cloud-Netflix" class="headerlink" title="Spring Cloud Netflix"></a>Spring Cloud Netflix</h2><p>Integration with various Netflix OSS components (Eureka, Hystrix, Zuul, Archaius, etc.).</p>
+<p>服务注册和发现, 客户端负载均衡,  断路器, 智能路由</p>
+<h2 id="Spring-Cloud-Bus"><a href="#Spring-Cloud-Bus" class="headerlink" title="Spring Cloud Bus"></a>Spring Cloud Bus</h2><p>An event bus for linking services and service instances together with distributed messaging. Useful for propagating state changes across a cluster (e.g. config change events).</p>
+<p>消息总线, </p>
+<h2 id="Spring-Cloud-Cloudfoundry"><a href="#Spring-Cloud-Cloudfoundry" class="headerlink" title="Spring Cloud Cloudfoundry"></a>Spring Cloud Cloudfoundry</h2><p>Integrates your application with Pivotal Cloud Foundry. Provides a service discovery implementation and also makes it easy to implement SSO and OAuth2 protected resources.</p>
+<p>集成 Pivotal Cloud Foundry 云服务</p>
+<h2 id="Spring-Cloud-Open-Service-Broker"><a href="#Spring-Cloud-Open-Service-Broker" class="headerlink" title="Spring Cloud Open Service Broker"></a>Spring Cloud Open Service Broker</h2><p>Provides a starting point for building a service broker that implements the Open Service Broker API.</p>
+<p>用于构建实现Open Service Broker API的Spring Boot应用程序的框架</p>
+<h2 id="Spring-Cloud-Cluster"><a href="#Spring-Cloud-Cluster" class="headerlink" title="Spring Cloud Cluster"></a>Spring Cloud Cluster</h2><p>Leadership election and common stateful patterns with an abstraction and implementation for Zookeeper, Redis, Hazelcast, Consul.</p>
+<p>集群功能, 抽象了 Zookeeper , redis, hazelcast, consul </p>
+<h2 id="Spring-Cloud-Consul"><a href="#Spring-Cloud-Consul" class="headerlink" title="Spring Cloud Consul"></a>Spring Cloud Consul</h2><p>Service discovery and configuration management with Hashicorp Consul.</p>
+<p>服务治理</p>
+<h2 id="Spring-Cloud-Security"><a href="#Spring-Cloud-Security" class="headerlink" title="Spring Cloud Security"></a>Spring Cloud Security</h2><p>Provides support for load-balanced OAuth2 rest client and authentication header relays in a Zuul proxy.</p>
+<p>负载均衡, 服务授权</p>
+<h2 id="Spring-Cloud-Sleuth"><a href="#Spring-Cloud-Sleuth" class="headerlink" title="Spring Cloud Sleuth"></a>Spring Cloud Sleuth</h2><p>Distributed tracing for Spring Cloud applications, compatible with Zipkin, HTrace and log-based (e.g. ELK) tracing.</p>
+<p>服务跟踪</p>
+<h2 id="Spring-Cloud-Data-Flow"><a href="#Spring-Cloud-Data-Flow" class="headerlink" title="Spring Cloud Data Flow"></a>Spring Cloud Data Flow</h2><p>A cloud-native orchestration service for composable microservice applications on modern runtimes. Easy-to-use DSL, drag-and-drop GUI, and REST-APIs together simplifies the overall orchestration of microservice based data pipelines.</p>
+<p>大数据处理</p>
+<h2 id="Spring-Cloud-Stream"><a href="#Spring-Cloud-Stream" class="headerlink" title="Spring Cloud Stream"></a>Spring Cloud Stream</h2><p>A lightweight event-driven microservices framework to quickly build applications that can connect to external systems. Simple declarative model to send and receive messages using Apache Kafka or RabbitMQ between Spring Boot apps.</p>
+<p>消息驱动</p>
+<h2 id="Spring-Cloud-Stream-App-Starters"><a href="#Spring-Cloud-Stream-App-Starters" class="headerlink" title="Spring Cloud Stream App Starters"></a>Spring Cloud Stream App Starters</h2><p>Spring Cloud Stream App Starters are Spring Boot based Spring Integration applications that provide integration with external systems.</p>
+<h2 id="Spring-Cloud-Task"><a href="#Spring-Cloud-Task" class="headerlink" title="Spring Cloud Task"></a>Spring Cloud Task</h2><p>A short-lived microservices framework to quickly build applications that perform finite amounts of data processing. Simple declarative for adding both functional and non-functional features to Spring Boot apps.</p>
+<p>定时任务</p>
+<h2 id="Spring-Cloud-Task-App-Starters"><a href="#Spring-Cloud-Task-App-Starters" class="headerlink" title="Spring Cloud Task App Starters"></a>Spring Cloud Task App Starters</h2><p>Spring Cloud Task App Starters are Spring Boot applications that may be any process including Spring Batch jobs that do not run forever, and they end/stop after a finite period of data processing.</p>
+<h2 id="Spring-Cloud-Zookeeper"><a href="#Spring-Cloud-Zookeeper" class="headerlink" title="Spring Cloud Zookeeper"></a>Spring Cloud Zookeeper</h2><p>Service discovery and configuration management with Apache Zookeeper.</p>
+<p>自动配置 zookeeper </p>
+<h2 id="Spring-Cloud-AWS"><a href="#Spring-Cloud-AWS" class="headerlink" title="Spring Cloud AWS"></a>Spring Cloud AWS</h2><p>Easy integration with hosted Amazon Web Services. It offers a convenient way to interact with AWS provided services using well-known Spring idioms and APIs, such as the messaging or caching API. Developers can build their application around the hosted services without having to care about infrastructure or maintenance.</p>
+<p>自动配置 aws 服务</p>
+<h2 id="Spring-Cloud-Connectors"><a href="#Spring-Cloud-Connectors" class="headerlink" title="Spring Cloud Connectors"></a>Spring Cloud Connectors</h2><p>Makes it easy for PaaS applications in a variety of platforms to connect to backend services like databases and message brokers (the project formerly known as “Spring Cloud”).</p>
+<p>云服务连接自动配置</p>
+<h2 id="Spring-Cloud-Starters"><a href="#Spring-Cloud-Starters" class="headerlink" title="Spring Cloud Starters"></a>Spring Cloud Starters</h2><p>Spring Boot-style starter projects to ease dependency management for consumers of Spring Cloud. (Discontinued as a project and merged with the other projects after Angel.SR2.)</p>
+<h2 id="Spring-Cloud-CLI"><a href="#Spring-Cloud-CLI" class="headerlink" title="Spring Cloud CLI"></a>Spring Cloud CLI</h2><p>Spring Boot CLI plugin for creating Spring Cloud component applications quickly in Groovy</p>
+<p>方便创建应用</p>
+<h2 id="Spring-Cloud-Contract"><a href="#Spring-Cloud-Contract" class="headerlink" title="Spring Cloud Contract"></a>Spring Cloud Contract</h2><p>Spring Cloud Contract is an umbrella project holding solutions that help users in successfully implementing the Consumer Driven Contracts approach.</p>
+<p>消费者驱动契约</p>
+<h2 id="Spring-Cloud-Gateway"><a href="#Spring-Cloud-Gateway" class="headerlink" title="Spring Cloud Gateway"></a>Spring Cloud Gateway</h2><p>Spring Cloud Gateway is an intelligent and programmable router based on Project Reactor.</p>
+<p>网关, 替代 zuul </p>
+<h2 id="Spring-Cloud-OpenFeign"><a href="#Spring-Cloud-OpenFeign" class="headerlink" title="Spring Cloud OpenFeign"></a>Spring Cloud OpenFeign</h2><p>Spring Cloud OpenFeign provides integrations for Spring Boot apps through autoconfiguration and binding to the Spring Environment and other Spring programming model idioms.</p>
+<p>OpenFeign 自动配置</p>
+<h2 id="Spring-Cloud-Pipelines"><a href="#Spring-Cloud-Pipelines" class="headerlink" title="Spring Cloud Pipelines"></a>Spring Cloud Pipelines</h2><p>Spring Cloud Pipelines provides an opinionated deployment pipeline with steps to ensure that your application can be deployed in zero downtime fashion and easilly rolled back of something goes wrong.</p>
+<h2 id="Spring-Cloud-Function"><a href="#Spring-Cloud-Function" class="headerlink" title="Spring Cloud Function"></a>Spring Cloud Function</h2><p>Spring Cloud Function promotes the implementation of business logic via functions. It supports a uniform programming model across serverless providers, as well as the ability to run standalone (locally or in a PaaS).</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/08/12/spring_cloud_例子/" data-id="ck9smo2xr000o88u4s08ifj2t" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-activiti-对-mybatis-的使用解析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/09/activiti-对-mybatis-的使用解析/" class="article-date">
+  <time datetime="2019-08-09T06:24:02.000Z" itemprop="datePublished">2019-08-09</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/08/09/activiti-对-mybatis-的使用解析/">activiti 对 mybatis 的使用解析</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="要点"><a href="#要点" class="headerlink" title="要点"></a>要点</h2><ul>
+<li>每个基于 MyBatis 的应用都是以一个 <strong>SqlSessionFactory</strong> 的实例为核心的</li>
+<li>activit 的配置核心是 <strong>ProcessEngineConfigurationImpl</strong></li>
 </ul>
-<pre><code>使用 codna 创建环境
+<h2 id="创建-mybatis-SqlSessionFactory"><a href="#创建-mybatis-SqlSessionFactory" class="headerlink" title="创建 mybatis SqlSessionFactory"></a>创建 mybatis SqlSessionFactory</h2><p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSqlSessionFactory</p>
+<p>读取 xml 配置文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inputStream = getMyBatisXmlConfigurationSteam();</span><br><span class="line">Configuration configuration = initMybatisConfiguration(environment, reader, properties);</span><br><span class="line">sqlSessionFactory = <span class="keyword">new</span> DefaultSqlSessionFactory(configuration);</span><br></pre></td></tr></table></figure>
+<h2 id="用于应用查询的-mapping-文件"><a href="#用于应用查询的-mapping-文件" class="headerlink" title="用于应用查询的 mapping 文件"></a>用于应用查询的 mapping 文件</h2><p>文件路径: Activiti\activiti-engine\src\main\resources\org\activiti\db\mapping</p>
+<h2 id="activiti-的-createxxxQuery"><a href="#activiti-的-createxxxQuery" class="headerlink" title="activiti 的 createxxxQuery"></a>activiti 的 createxxxQuery</h2><p>比如  runtimeService 的 createExecutionQuery,<br>返回 ExecutionQuery 的 派生类对象 ExecutionQueryImpl 对象</p>
+<p>query 实现了 execute 接口,</p>
+<p>executeList 方法</p>
+<blockquote>
+<p>List&lt;?&gt; executions = commandContext.getExecutionEntityManager().findExecutionsByQueryCriteria(this, page);</p>
+</blockquote>
+<p>ExecutionEntityManager 负责调用mybatis 的接口</p>
+<blockquote>
+<p>getDbSqlSession().selectList(“selectExecutionsByQueryCriteria”, executionQuery, page);</p>
+</blockquote>
+<p>DbSqlSession 包装了对 mybatis sqlSession 的调用</p>
+<p>List loadedObjects = sqlSession.selectList(statement, parameter);</p>
+<h2 id="getxxxEntityManager-是-session的子类"><a href="#getxxxEntityManager-是-session的子类" class="headerlink" title="getxxxEntityManager 是 session的子类"></a>getxxxEntityManager 是 session的子类</h2><p>xxxEntityManager 将请求转到session, activiti 默认创建了需要的 xxxEntityManager</p>
+<p>commandContext.getExecutionEntityManager()</p>
+<h2 id="historicTaskInstanceQueryImpl"><a href="#historicTaskInstanceQueryImpl" class="headerlink" title="historicTaskInstanceQueryImpl"></a>historicTaskInstanceQueryImpl</h2><p>查询列表,<br>org.activiti.engine.impl.HistoricTaskInstanceQueryImpl#executeList</p>
+<pre><code>if (includeTaskLocalVariables || includeProcessVariables) {
+  tasks = commandContext
+      .getHistoricTaskInstanceEntityManager()
+      .findHistoricTaskInstancesAndVariablesByQueryCriteria(this);
+} else {
+  tasks = commandContext
+      .getHistoricTaskInstanceEntityManager()
+      .findHistoricTaskInstancesByQueryCriteria(this);
+}
+</code></pre><p>org.activiti.engine.impl.persistence.entity.HistoricTaskInstanceEntityManager#findHistoricTaskInstancesByQueryCriteria</p>
+<pre><code>getDbSqlSession().selectList(&quot;selectHistoricTaskInstancesByQueryCriteria&quot;, historicTaskInstanceQuery);
+</code></pre><p>org.activiti.engine.impl.db.DbSqlSession#selectList(java.lang.String, org.activiti.engine.impl.db.ListQueryParameterObject)</p>
+<pre><code>selectListWithRawParameter(statement, parameter, parameter.getFirstResult(), parameter.getMaxResults());
+statement = dbSqlSessionFactory.mapStatement(statement);    
+List loadedObjects = sqlSession.selectList(statement, parameter);
+</code></pre><p>org.activiti.engine.impl.db.DbSqlSessionFactory#mapStatement</p>
+<p>org.apache.ibatis.session.SqlSession#selectList(java.lang.String, java.lang.Object)</p>
+<h2 id="activiti-是如何初始化-mybatis-的"><a href="#activiti-是如何初始化-mybatis-的" class="headerlink" title="activiti 是如何初始化 mybatis 的"></a>activiti 是如何初始化 mybatis 的</h2><p>观察 :<br>DbSqlSession,<br>DbSqlSessionFactory,</p>
+<p>自动配置 </p>
+<p>// 可以配置的 activiti 参数<br>org.activiti.spring.boot.ActivitiProperties</p>
+<pre><code>private List&lt;String&gt; customMybatisMappers;  // 用户自己的 mybatis mapper
+private List&lt;String&gt; customMybatisXMLMappers;  // 用户自己的 mybatis xml mapper 
+</code></pre><p>org.activiti.spring.boot.AbstractProcessEngineAutoConfiguration#processEngine</p>
+<p>org.activiti.spring.boot.AbstractProcessEngineConfiguration#springProcessEngineBean<br>    ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();<br>    processEngineFactoryBean.setProcessEngineConfiguration(configuration);</p>
+<p>org.activiti.spring.ProcessEngineFactoryBean#getObject<br>    this.processEngine = processEngineConfiguration.buildProcessEngine();</p>
+<p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#init</p>
+<p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initDataSource</p>
+<pre><code>protected void init() {
+    initConfigurators();
+    configuratorsBeforeInit();
+    initProcessDiagramGenerator();
+    initHistoryLevel();
+    initExpressionManager();
+    initDataSource();
+    initVariableTypes();
+    initBeans();
+    initFormEngines();
+    initFormTypes();
+    initScriptingEngines();
+    initClock();
+    initBusinessCalendarManager();
+    initCommandContextFactory();
+    initTransactionContextFactory();
+    initCommandExecutors();
+    initServices();
+    initIdGenerator();
+    initDeployers();
+    initJobHandlers();
+    initJobExecutor();
+    initAsyncExecutor();
+    initTransactionFactory();
+    initSqlSessionFactory();
+    initSessionFactories();
+    initJpa();
+    initDelegateInterceptor();
+    initEventHandlers();
+    initFailedJobCommandFactory();
+    initEventDispatcher();
+    initProcessValidator();
+    initDatabaseEventLogging();
+    configuratorsAfterInit();
+  }
+</code></pre><p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSqlSessionFactory</p>
+<pre><code>inputStream = getMyBatisXmlConfigurationSteam();
+Environment environment = new Environment(&quot;default&quot;, transactionFactory, dataSource);
+Reader reader = new InputStreamReader(inputStream);
 
-conda env list 
-conda create -n pelican --clone root
-activate pelican
+Configuration configuration = initMybatisConfiguration(environment, reader, properties);
+sqlSessionFactory = new DefaultSqlSessionFactory(configuration);
+</code></pre><p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSessionFactories</p>
+<p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initCustomMybatisMappers    </p>
+<p>org.activiti.engine.impl.cmd.ExecuteCustomSqlCmd#execute<br>    Mapper mapper = commandContext.getDbSqlSession().getSqlSession().getMapper(mapperClass);<br>    return customSqlExecution.execute(mapper);</p>
+<h2 id="activiti-springboot使用自定义mybatis-mapper"><a href="#activiti-springboot使用自定义mybatis-mapper" class="headerlink" title="activiti-springboot使用自定义mybatis-mapper"></a>activiti-springboot使用自定义mybatis-mapper</h2><p>在application.properties新增自定义配置</p>
+<pre><code>spring.activiti.customMybatisXMLMappers=com/codecraft/dao/ProcInstMapper.xml
 
-git clone git://github.com/getpelican/pelican.git            # 代码
-cd pelican
-python setup.py install
-</code></pre><h2 id="开始一个博客"><a href="#开始一个博客" class="headerlink" title="开始一个博客"></a>开始一个博客</h2><pre><code>mkdir /path/to/your/blog
-cd /path/to/your/blog
-pelican-quickstart
-</code></pre><p>在回答一系列问题过后你的博客就建成的, 主要生成下列文件:</p>
-<pre><code>.
-|-- content                # 所有文章放于此目录
-|-- develop_server.sh      # 用于开启测试服务器
-|-- Makefile               # 方便管理博客的Makefile
-|-- output                 # 静态生成文件
-|-- pelicanconf.py         # 配置文件
-|-- publishconf.py         # 配置文件
-</code></pre><h2 id="写一篇文章"><a href="#写一篇文章" class="headerlink" title="写一篇文章"></a>写一篇文章</h2><p>在 content 目录新建一个 test.md文件, 填入一下内容:</p>
-<p>Title: 文章标题<br>Date: 2013-04-18<br>Category: 文章类别<br>Tag: 标签1, 标签2</p>
-<p>这里是内容</p>
-<p>然后执行:</p>
-<pre><code>make html
-</code></pre><p>用以生成html</p>
-<p>然后执行</p>
-<pre><code>./develop_server.sh start
-</code></pre><p>开启一个测试服务器, 这会在本地 8000 端口建立一个测试web服务器, 可以使用浏览器打开:<a href="http://localhost:8000来访问这个测试服务器" target="_blank" rel="noopener">http://localhost:8000来访问这个测试服务器</a>, 然后就可以欣赏到你的博客了</p>
-<h2 id="创建一个页面"><a href="#创建一个页面" class="headerlink" title="创建一个页面"></a>创建一个页面</h2><p>这里以创建 About页面为例</p>
-<p>在content目录创建pages目录</p>
-<pre><code>mkdir content/pages
-</code></pre><p>然后创建About.md并填入下面内容</p>
-<pre><code>Title: About Me
-Date: 2013-04-18
-
-About me content
-</code></pre><p>执行 make html 生成html, 然后打开 <a href="http://localhost:8000查看效果" target="_blank" rel="noopener">http://localhost:8000查看效果</a></p>
-<h2 id="让Pelican支持评论"><a href="#让Pelican支持评论" class="headerlink" title="让Pelican支持评论"></a>让Pelican支持评论</h2><p>Pelican 使用Disqus评论, 可以申请在Disqus上申请一个站点, 然后在pelicanconf.py里添加或修改DISQUS_SITENAME项:</p>
-<pre><code>DISQUS_SITENAME = u&quot;linuxzen&quot;
-</code></pre><p>执行</p>
-<pre><code>make html
-</code></pre><h2 id="更换主题"><a href="#更换主题" class="headerlink" title="更换主题"></a>更换主题</h2><p>Pelican本身也提供了一些主题可供选择, 可以从github克隆下来</p>
-<pre><code>git clone git://github.com/getpelican/pelican-themes.git     # 主题
-</code></pre><p>然后在里面找到想要的主题, 然后拷到博客项目当前目录, 这里已neat为例</p>
-<pre><code>cp -r /path/to/themes/from/github/neat .
-</code></pre><p>然后在 pelicanconf.py 配置文件里添加或修改 THEME项为 neat</p>
-<pre><code>THEME = &quot;neat&quot;
-</code></pre><p>重新执行</p>
-<pre><code>make html
-</code></pre><h2 id="使用插件"><a href="#使用插件" class="headerlink" title="使用插件"></a>使用插件</h2><p>Pelican 一开始是将插件内置的, 但是新版本 Pelican将插件隔离了出来, 所以我们要到github上 克隆一份新的插件, 在博客目录执行</p>
-<pre><code>git clone git://github.com/getpelican/pelican-plugins.git    # 插件
-</code></pre><p>现在我们博客目录就新添了一个 pelican-plugins目录, 我们已配置sitemap插件为例, sitemap插件可以生成 sitemap.xml 供搜索引擎使用</p>
-<p>在pelicanconf.py配置文件里加上如下项:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">PLUGIN_PATH = <span class="string">u"pelican-plugins"</span></span><br><span class="line"></span><br><span class="line">PLUGINS = [<span class="string">"sitemap"</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">## 配置sitemap 插件</span></span><br><span class="line">SITEMAP = &#123;</span><br><span class="line">    <span class="string">"format"</span>: <span class="string">"xml"</span>,</span><br><span class="line">    <span class="string">"priorities"</span>: &#123;</span><br><span class="line">        <span class="string">"articles"</span>: <span class="number">0.7</span>,</span><br><span class="line">        <span class="string">"indexes"</span>: <span class="number">0.5</span>,</span><br><span class="line">        <span class="string">"pages"</span>: <span class="number">0.3</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="string">"changefreqs"</span>: &#123;</span><br><span class="line">        <span class="string">"articles"</span>: <span class="string">"monthly"</span>,</span><br><span class="line">        <span class="string">"indexes"</span>: <span class="string">"daily"</span>,</span><br><span class="line">        <span class="string">"pages"</span>: <span class="string">"monthly"</span>,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后再执行</p>
-<pre><code>make html
-</code></pre><p>打开浏览器请求 <a href="http://localhost:8000/sitemap.xml即可看到生成的" target="_blank" rel="noopener">http://localhost:8000/sitemap.xml即可看到生成的</a> Sitemap 了</p>
-<h2 id="拷贝静态文件"><a href="#拷贝静态文件" class="headerlink" title="拷贝静态文件"></a>拷贝静态文件</h2><p>如果我们定义静态的文件, 该如何将它在每次生成的时候拷贝到 output 目录呢, 我们以robots.txt为例, 在我们的 content/extra 下面我们放了一个定义好的 robots.txt文件, 在pelicanconf.py更改或添加 FILES_TO_COPY项:</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">FILES_TO_COPY = (</span><br><span class="line">    (<span class="string">"extra/robots.txt"</span>, <span class="string">"robots.txt"</span>),</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
-<p>这样在每次生成html的时候都会把 content/extra下的 robots.txt 拷贝到 output目录下</p>
-<h2 id="拷贝静态目录"><a href="#拷贝静态目录" class="headerlink" title="拷贝静态目录"></a>拷贝静态目录</h2><p> 我们可以在pelicanconf.py里添加或修改 STATIC_PATHS项, 比如我们有个img目录用来放文章所使用的图片, 我们可以在pelicanconf.py添加</p>
- <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">STATIC_PATHS = [<span class="string">u"img"</span>]</span><br></pre></td></tr></table></figure>
-<p>然后 Pelican 就会将 img目录拷贝到 output/static/ 下</p>
-<h2 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h2><p>上面都弄完之后你就可以得到一个功能健全的博客系统, 接下来就是部署到服务器, 上传到服务器并结合nginx或者apache等web服务器部署这里就不在详述</p>
-<p>参考:</p>
+spring.activiti.customMybatisMappers=com.codecraft.dao.ProcInstMapper
+</code></pre><p>使用方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;ProcInstVo&gt; <span class="title">getAllProcInsts</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> managementService.executeCustomSql(<span class="keyword">new</span> AbstractCustomSqlExecution&lt;ProcInstMapper,List&lt;ProcInstVo&gt;&gt;(ProcInstMapper.class) &#123;</span><br><span class="line"></span><br><span class="line">		<span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">		<span class="function"><span class="keyword">public</span> List&lt;ProcInstVo&gt; <span class="title">execute</span><span class="params">(ProcInstMapper procInstMapper)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">return</span> procInstMapper.selectAllProcInsts();</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">```	</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">```java </span><br><span class="line">ProcessEngineConfiguration cfg = ProcessEngineConfiguration.createProcessEngineConfigurationFromResource(<span class="string">"activiti.cfg.xml"</span>);</span><br><span class="line">ProcessEngine processEngine = cfg.buildProcessEngine();</span><br><span class="line">ManagementService managementService = processEngine.getManagementService();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取指定表的数据</span></span><br><span class="line">TablePage tablePage = managementService.createTablePageQuery()</span><br><span class="line">                .tableName(managementService.getTableName(ProcessDefinitionEntity.class))</span><br><span class="line">                .listPage(<span class="number">0</span>,<span class="number">100</span>);</span><br><span class="line">List&lt;Map&lt;String,Object&gt;&gt; rowsList = tablePage.getRows();</span><br><span class="line"><span class="keyword">for</span> (Map&lt;String,Object&gt; row : rowsList)&#123;</span><br><span class="line">     logger.info(<span class="string">"row=&#123;&#125;"</span>,row);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://hongdaorongthink.github.io/2019/05/10/pelican_生成静态网站/" data-id="cjvhippm700027sumj6ntt8hu" class="article-share-link">Share</a>
+      <a data-url="http://hongdaorongthink.github.io/2019/08/09/activiti-对-mybatis-的使用解析/" data-id="ck9smo2wy000588u4kdjyunyn" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/activiti/">activiti</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/">mybatis</a></li></ul>
+
     </footer>
   </div>
   
@@ -161,10 +449,10 @@ About me content
 
 
   
-    <article id="post-post" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-activiti modeler_没有边界补偿抛出事件" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/05/09/post/" class="article-date">
-  <time datetime="2019-05-09T10:02:08.000Z" itemprop="datePublished">2019-05-09</time>
+    <a href="/2019/07/23/activiti modeler_没有边界补偿抛出事件/" class="article-date">
+  <time datetime="2019-07-23T07:56:44.000Z" itemprop="datePublished">2019-07-23</time>
 </a>
     
   </div>
@@ -175,7 +463,48 @@ About me content
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/09/post/">post</a>
+      <a class="article-title" href="/2019/07/23/activiti modeler_没有边界补偿抛出事件/">activiti modeler_没有边界补偿抛出事件</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>为什么activi explorer 部署的补偿边界事件无效?</strong></p>
+<p>因为  activi explorer 部署时会把 isForCompensation=”true” 属性弄丢, </p>
+<p>activiti modeler 也没有 中间补偿抛出事件</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/07/23/activiti modeler_没有边界补偿抛出事件/" data-id="ck9smo2wi000088u41orc7tec" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/activiti/">activiti</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-vue_死循环的情况" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/06/24/vue_死循环的情况/" class="article-date">
+  <time datetime="2019-06-24T06:53:12.000Z" itemprop="datePublished">2019-06-24</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/06/24/vue_死循环的情况/">vue_死循环的情况</a>
     </h1>
   
 
@@ -187,9 +516,11 @@ About me content
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://hongdaorongthink.github.io/2019/05/09/post/" data-id="cjvhippm900037sumagl1tzju" class="article-share-link">Share</a>
+      <a data-url="http://hongdaorongthink.github.io/2019/06/24/vue_死循环的情况/" data-id="ck9smo2xl000j88u4dpciu5p8" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/vue/">vue</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/失败案例/">失败案例</a></li></ul>
+
     </footer>
   </div>
   
@@ -197,10 +528,10 @@ About me content
 
 
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-兰德公司" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2019/05/09/hello-world/" class="article-date">
-  <time datetime="2019-05-09T08:07:17.594Z" itemprop="datePublished">2019-05-09</time>
+    <a href="/2019/06/20/兰德公司/" class="article-date">
+  <time datetime="2019-06-20T08:07:04.470Z" itemprop="datePublished">2019-06-20</time>
 </a>
     
   </div>
@@ -211,7 +542,7 @@ About me content
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2019/05/09/hello-world/">Hello World</a>
+      <a class="article-title" href="/2019/06/20/兰德公司/">兰德公司</a>
     </h1>
   
 
@@ -219,20 +550,90 @@ About me content
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <p>兰德公司,</p>
+<p>冯.诺依曼, 军旗游戏, 博弈论,</p>
+<p>单次博弈</p>
+<p>多次博弈</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><p>[1]: </p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://hongdaorongthink.github.io/2019/05/09/hello-world/" data-id="cjvhippmb00047sum8ddxcy01" class="article-share-link">Share</a>
+      <a data-url="http://hongdaorongthink.github.io/2019/06/20/兰德公司/" data-id="ck9smo2xm000k88u4llwaxegj" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-vue-cli3.0_环境变量与模式" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/27/vue-cli3.0_环境变量与模式/" class="article-date">
+  <time datetime="2019-05-27T02:06:40.015Z" itemprop="datePublished">2019-05-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/05/27/vue-cli3.0_环境变量与模式/">vue-cli3.0_环境变量与模式.md</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>参考:</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/05/27/vue-cli3.0_环境变量与模式/" data-id="ck9smo2xi000i88u4i0cwoc1v" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-spring_boot_使用开发环境变量" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/05/27/spring_boot_使用开发环境变量/" class="article-date">
+  <time datetime="2019-05-27T02:06:40.015Z" itemprop="datePublished">2019-05-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/05/27/spring_boot_使用开发环境变量/">spring_boot_使用开发环境变量.md</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>spring.profiles.active=dev</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/05/27/spring_boot_使用开发环境变量/" data-id="ck9smo2xg000h88u4yxowlwjw" class="article-share-link">Share</a>
       
       
     </footer>
@@ -243,6 +644,11 @@ About me content
 
   
 
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+  </nav>
 
 </section>
         
@@ -252,15 +658,29 @@ About me content
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/activiti/">activiti</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/失败案例/">失败案例</a></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/activiti/" style="font-size: 20px;">activiti</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/失败案例/" style="font-size: 10px;">失败案例</a>
+    </div>
+  </div>
+
   
     
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li></ul>
     </div>
   </div>
 
@@ -273,15 +693,23 @@ About me content
       <ul>
         
           <li>
-            <a href="/2019/05/10/pelican_生成静态网站/">(no title)</a>
+            <a href="/2019/08/12/Spring_Cloud_Bus/">(no title)</a>
           </li>
         
           <li>
-            <a href="/2019/05/09/post/">post</a>
+            <a href="/2019/08/12/Spring_Cloud_Netflix/">(no title)</a>
           </li>
         
           <li>
-            <a href="/2019/05/09/hello-world/">Hello World</a>
+            <a href="/2019/08/12/Spring_Cloud_Config/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/12/spring_cloud_例子/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/09/activiti-对-mybatis-的使用解析/">activiti 对 mybatis 的使用解析</a>
           </li>
         
       </ul>
@@ -296,7 +724,7 @@ About me content
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Hong Daorong<br>
+      &copy; 2020 Hong Daorong<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>

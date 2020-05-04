@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  
+
+  
+  <title>activiti 对 mybatis 的使用解析 | hongdaorongThink.github.io</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="要点 每个基于 MyBatis 的应用都是以一个 SqlSessionFactory 的实例为核心的 activit 的配置核心是 ProcessEngineConfigurationImpl  创建 mybatis SqlSessionFactoryorg.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSqlSession">
+<meta name="keywords" content="activiti,mybatis">
+<meta property="og:type" content="article">
+<meta property="og:title" content="activiti 对 mybatis 的使用解析">
+<meta property="og:url" content="http://hongdaorongthink.github.io/2019/08/09/activiti-对-mybatis-的使用解析/index.html">
+<meta property="og:site_name" content="hongdaorongThink.github.io">
+<meta property="og:description" content="要点 每个基于 MyBatis 的应用都是以一个 SqlSessionFactory 的实例为核心的 activit 的配置核心是 ProcessEngineConfigurationImpl  创建 mybatis SqlSessionFactoryorg.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSqlSession">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-12-25T10:02:51.134Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="activiti 对 mybatis 的使用解析">
+<meta name="twitter:description" content="要点 每个基于 MyBatis 的应用都是以一个 SqlSessionFactory 的实例为核心的 activit 的配置核心是 ProcessEngineConfigurationImpl  创建 mybatis SqlSessionFactoryorg.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSqlSession">
+  
+    <link rel="alternate" href="/atom.xml" title="hongdaorongThink.github.io" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="https://fonts.proxy.ustclug.org/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+</html>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">hongdaorongThink.github.io</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://hongdaorongthink.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-activiti-对-mybatis-的使用解析" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2019/08/09/activiti-对-mybatis-的使用解析/" class="article-date">
+  <time datetime="2019-08-09T06:24:02.000Z" itemprop="datePublished">2019-08-09</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      activiti 对 mybatis 的使用解析
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="要点"><a href="#要点" class="headerlink" title="要点"></a>要点</h2><ul>
+<li>每个基于 MyBatis 的应用都是以一个 <strong>SqlSessionFactory</strong> 的实例为核心的</li>
+<li>activit 的配置核心是 <strong>ProcessEngineConfigurationImpl</strong></li>
+</ul>
+<h2 id="创建-mybatis-SqlSessionFactory"><a href="#创建-mybatis-SqlSessionFactory" class="headerlink" title="创建 mybatis SqlSessionFactory"></a>创建 mybatis SqlSessionFactory</h2><p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSqlSessionFactory</p>
+<p>读取 xml 配置文件</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inputStream = getMyBatisXmlConfigurationSteam();</span><br><span class="line">Configuration configuration = initMybatisConfiguration(environment, reader, properties);</span><br><span class="line">sqlSessionFactory = <span class="keyword">new</span> DefaultSqlSessionFactory(configuration);</span><br></pre></td></tr></table></figure>
+<h2 id="用于应用查询的-mapping-文件"><a href="#用于应用查询的-mapping-文件" class="headerlink" title="用于应用查询的 mapping 文件"></a>用于应用查询的 mapping 文件</h2><p>文件路径: Activiti\activiti-engine\src\main\resources\org\activiti\db\mapping</p>
+<h2 id="activiti-的-createxxxQuery"><a href="#activiti-的-createxxxQuery" class="headerlink" title="activiti 的 createxxxQuery"></a>activiti 的 createxxxQuery</h2><p>比如  runtimeService 的 createExecutionQuery,<br>返回 ExecutionQuery 的 派生类对象 ExecutionQueryImpl 对象</p>
+<p>query 实现了 execute 接口,</p>
+<p>executeList 方法</p>
+<blockquote>
+<p>List&lt;?&gt; executions = commandContext.getExecutionEntityManager().findExecutionsByQueryCriteria(this, page);</p>
+</blockquote>
+<p>ExecutionEntityManager 负责调用mybatis 的接口</p>
+<blockquote>
+<p>getDbSqlSession().selectList(“selectExecutionsByQueryCriteria”, executionQuery, page);</p>
+</blockquote>
+<p>DbSqlSession 包装了对 mybatis sqlSession 的调用</p>
+<p>List loadedObjects = sqlSession.selectList(statement, parameter);</p>
+<h2 id="getxxxEntityManager-是-session的子类"><a href="#getxxxEntityManager-是-session的子类" class="headerlink" title="getxxxEntityManager 是 session的子类"></a>getxxxEntityManager 是 session的子类</h2><p>xxxEntityManager 将请求转到session, activiti 默认创建了需要的 xxxEntityManager</p>
+<p>commandContext.getExecutionEntityManager()</p>
+<h2 id="historicTaskInstanceQueryImpl"><a href="#historicTaskInstanceQueryImpl" class="headerlink" title="historicTaskInstanceQueryImpl"></a>historicTaskInstanceQueryImpl</h2><p>查询列表,<br>org.activiti.engine.impl.HistoricTaskInstanceQueryImpl#executeList</p>
+<pre><code>if (includeTaskLocalVariables || includeProcessVariables) {
+  tasks = commandContext
+      .getHistoricTaskInstanceEntityManager()
+      .findHistoricTaskInstancesAndVariablesByQueryCriteria(this);
+} else {
+  tasks = commandContext
+      .getHistoricTaskInstanceEntityManager()
+      .findHistoricTaskInstancesByQueryCriteria(this);
+}
+</code></pre><p>org.activiti.engine.impl.persistence.entity.HistoricTaskInstanceEntityManager#findHistoricTaskInstancesByQueryCriteria</p>
+<pre><code>getDbSqlSession().selectList(&quot;selectHistoricTaskInstancesByQueryCriteria&quot;, historicTaskInstanceQuery);
+</code></pre><p>org.activiti.engine.impl.db.DbSqlSession#selectList(java.lang.String, org.activiti.engine.impl.db.ListQueryParameterObject)</p>
+<pre><code>selectListWithRawParameter(statement, parameter, parameter.getFirstResult(), parameter.getMaxResults());
+statement = dbSqlSessionFactory.mapStatement(statement);    
+List loadedObjects = sqlSession.selectList(statement, parameter);
+</code></pre><p>org.activiti.engine.impl.db.DbSqlSessionFactory#mapStatement</p>
+<p>org.apache.ibatis.session.SqlSession#selectList(java.lang.String, java.lang.Object)</p>
+<h2 id="activiti-是如何初始化-mybatis-的"><a href="#activiti-是如何初始化-mybatis-的" class="headerlink" title="activiti 是如何初始化 mybatis 的"></a>activiti 是如何初始化 mybatis 的</h2><p>观察 :<br>DbSqlSession,<br>DbSqlSessionFactory,</p>
+<p>自动配置 </p>
+<p>// 可以配置的 activiti 参数<br>org.activiti.spring.boot.ActivitiProperties</p>
+<pre><code>private List&lt;String&gt; customMybatisMappers;  // 用户自己的 mybatis mapper
+private List&lt;String&gt; customMybatisXMLMappers;  // 用户自己的 mybatis xml mapper 
+</code></pre><p>org.activiti.spring.boot.AbstractProcessEngineAutoConfiguration#processEngine</p>
+<p>org.activiti.spring.boot.AbstractProcessEngineConfiguration#springProcessEngineBean<br>    ProcessEngineFactoryBean processEngineFactoryBean = new ProcessEngineFactoryBean();<br>    processEngineFactoryBean.setProcessEngineConfiguration(configuration);</p>
+<p>org.activiti.spring.ProcessEngineFactoryBean#getObject<br>    this.processEngine = processEngineConfiguration.buildProcessEngine();</p>
+<p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#init</p>
+<p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initDataSource</p>
+<pre><code>protected void init() {
+    initConfigurators();
+    configuratorsBeforeInit();
+    initProcessDiagramGenerator();
+    initHistoryLevel();
+    initExpressionManager();
+    initDataSource();
+    initVariableTypes();
+    initBeans();
+    initFormEngines();
+    initFormTypes();
+    initScriptingEngines();
+    initClock();
+    initBusinessCalendarManager();
+    initCommandContextFactory();
+    initTransactionContextFactory();
+    initCommandExecutors();
+    initServices();
+    initIdGenerator();
+    initDeployers();
+    initJobHandlers();
+    initJobExecutor();
+    initAsyncExecutor();
+    initTransactionFactory();
+    initSqlSessionFactory();
+    initSessionFactories();
+    initJpa();
+    initDelegateInterceptor();
+    initEventHandlers();
+    initFailedJobCommandFactory();
+    initEventDispatcher();
+    initProcessValidator();
+    initDatabaseEventLogging();
+    configuratorsAfterInit();
+  }
+</code></pre><p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSqlSessionFactory</p>
+<pre><code>inputStream = getMyBatisXmlConfigurationSteam();
+Environment environment = new Environment(&quot;default&quot;, transactionFactory, dataSource);
+Reader reader = new InputStreamReader(inputStream);
+
+Configuration configuration = initMybatisConfiguration(environment, reader, properties);
+sqlSessionFactory = new DefaultSqlSessionFactory(configuration);
+</code></pre><p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initSessionFactories</p>
+<p>org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl#initCustomMybatisMappers    </p>
+<p>org.activiti.engine.impl.cmd.ExecuteCustomSqlCmd#execute<br>    Mapper mapper = commandContext.getDbSqlSession().getSqlSession().getMapper(mapperClass);<br>    return customSqlExecution.execute(mapper);</p>
+<h2 id="activiti-springboot使用自定义mybatis-mapper"><a href="#activiti-springboot使用自定义mybatis-mapper" class="headerlink" title="activiti-springboot使用自定义mybatis-mapper"></a>activiti-springboot使用自定义mybatis-mapper</h2><p>在application.properties新增自定义配置</p>
+<pre><code>spring.activiti.customMybatisXMLMappers=com/codecraft/dao/ProcInstMapper.xml
+
+spring.activiti.customMybatisMappers=com.codecraft.dao.ProcInstMapper
+</code></pre><p>使用方式</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> List&lt;ProcInstVo&gt; <span class="title">getAllProcInsts</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> managementService.executeCustomSql(<span class="keyword">new</span> AbstractCustomSqlExecution&lt;ProcInstMapper,List&lt;ProcInstVo&gt;&gt;(ProcInstMapper.class) &#123;</span><br><span class="line"></span><br><span class="line">		<span class="meta">@Override</span></span><br><span class="line"></span><br><span class="line">		<span class="function"><span class="keyword">public</span> List&lt;ProcInstVo&gt; <span class="title">execute</span><span class="params">(ProcInstMapper procInstMapper)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">return</span> procInstMapper.selectAllProcInsts();</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">```	</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">```java </span><br><span class="line">ProcessEngineConfiguration cfg = ProcessEngineConfiguration.createProcessEngineConfigurationFromResource(<span class="string">"activiti.cfg.xml"</span>);</span><br><span class="line">ProcessEngine processEngine = cfg.buildProcessEngine();</span><br><span class="line">ManagementService managementService = processEngine.getManagementService();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取指定表的数据</span></span><br><span class="line">TablePage tablePage = managementService.createTablePageQuery()</span><br><span class="line">                .tableName(managementService.getTableName(ProcessDefinitionEntity.class))</span><br><span class="line">                .listPage(<span class="number">0</span>,<span class="number">100</span>);</span><br><span class="line">List&lt;Map&lt;String,Object&gt;&gt; rowsList = tablePage.getRows();</span><br><span class="line"><span class="keyword">for</span> (Map&lt;String,Object&gt; row : rowsList)&#123;</span><br><span class="line">     logger.info(<span class="string">"row=&#123;&#125;"</span>,row);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://hongdaorongthink.github.io/2019/08/09/activiti-对-mybatis-的使用解析/" data-id="ck9smo2wy000588u4kdjyunyn" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/activiti/">activiti</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/mybatis/">mybatis</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/08/12/spring_cloud_例子/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          (no title)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/07/23/activiti modeler_没有边界补偿抛出事件/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">activiti modeler_没有边界补偿抛出事件</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/activiti/">activiti</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mybatis/">mybatis</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/vue/">vue</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/失败案例/">失败案例</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/activiti/" style="font-size: 20px;">activiti</a> <a href="/tags/mybatis/" style="font-size: 10px;">mybatis</a> <a href="/tags/vue/" style="font-size: 10px;">vue</a> <a href="/tags/失败案例/" style="font-size: 10px;">失败案例</a>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/08/">August 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/07/">July 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/06/">June 2019</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/05/">May 2019</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2019/08/12/Spring_Cloud_Bus/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/12/Spring_Cloud_Netflix/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/12/Spring_Cloud_Config/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/12/spring_cloud_例子/">(no title)</a>
+          </li>
+        
+          <li>
+            <a href="/2019/08/09/activiti-对-mybatis-的使用解析/">activiti 对 mybatis 的使用解析</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Hong Daorong<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//cdn.bootcss.com/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+
+
+  </div>
+</body>
+</html>
